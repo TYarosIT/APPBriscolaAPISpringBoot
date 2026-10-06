@@ -11,9 +11,9 @@ import java.util.logging.Logger;
 @Service
 public class GameService {
     private Giocatori player1, player2;
-    private  List<Giocatori> listaplayer = new ArrayList<>();
-    private  List<Partita> listaPartite = new ArrayList<>();
-    private Map<String,String> pgmap = new HashMap<>();
+    private  final List<Giocatori> listaplayer = new ArrayList<>();
+    private  final List<Partita> listaPartite = new ArrayList<>();
+    private final Map<String,String> pgmap = new HashMap<>();
     private String turn;
 
     private static final Logger logger = Logger.getLogger(GameService.class.getName());
@@ -36,6 +36,63 @@ public class GameService {
         else return pgmap.get(idp);
     }
 
+    public List<Integer> sendCarte(@RequestParam String idp){
+        for (Partita partita : listaPartite)
+            if (partita.getIdPartita().contains(idp))
+                return partita.getCarte();
+
+        return listaPartite.getFirst().getCarte();
+    }
+
+    public String partitaChiusa(@RequestParam String idp){
+        for (Partita partita : listaPartite)
+            if (partita.getIdPartita().contains(idp))
+                if(partita.isPartitaFinita()) return "finita";
+                else return "ok";
+        return "not found";
+    }
+
+    public String sendTurno(@RequestParam String idp){
+        for (Partita partita : listaPartite)
+            if (partita.getIdPartita().contains(idp))
+                return partita.getTurn();
+        return "0";
+    }
+
+    public String sendCarte(@RequestParam String idp,int carta,String player) {
+        for (Partita partita : listaPartite) {
+            if (partita.getIdPartita().contains(idp)) {
+                partita.setCartaP1(carta);
+                if (player.contains(partita.getIdFirstPlayer())) partita.setTurn(partita.getIdSecondPlayer());
+                else partita.setTurn(partita.getIdFirstPlayer());
+                System.out.println(carta);
+                return "100";
+            }
+
+        }
+        return "0";
+    }
+
+    public int getCarta(@RequestParam String idp){
+        for (Partita partita : listaPartite) {
+            if (partita.getIdPartita().contains(idp)) {
+                return partita.getCartaP1();
+            }
+
+        }
+        return 0;
+    }
+
+    public String fine(@RequestParam String idp){
+        for (Partita partita : listaPartite) {
+            if (partita.getIdPartita().contains(idp)) {
+                partita.setPartitaFinita(true);
+                return "finita";
+            }
+
+        }
+        return "not found";
+    }
 
     public void readyForGame(){
         player1 = listaplayer.get(listaplayer.size()-2);
