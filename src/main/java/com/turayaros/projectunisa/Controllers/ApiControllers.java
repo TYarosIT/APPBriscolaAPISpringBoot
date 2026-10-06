@@ -2,6 +2,7 @@ package com.turayaros.projectunisa.Controllers;
 
 import com.turayaros.projectunisa.Models.Giocatori;
 import com.turayaros.projectunisa.Models.Partita;
+import com.turayaros.projectunisa.Services.GameService;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -9,17 +10,19 @@ import org.springframework.web.bind.annotation.*;
 import com.turayaros.projectunisa.*;
 
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 public class ApiControllers {
 
     private Giocatori player1, player2;
 
-    private static List<Giocatori> listaplayer = new ArrayList<>();
-    private static List<Partita> listaPartite = new ArrayList<>();
-    private Map<String,String> pgmap = new HashMap<>();
-    private String turn;
+    private final GameService gameService;
 
+    public ApiControllers(GameService gameService) {
+        this.gameService = gameService;
+    }
     @GetMapping(value = "/w")
     public String getPage(){
         return "welcome";
@@ -27,15 +30,8 @@ public class ApiControllers {
 
     @GetMapping(value = "/ready")
     @ResponseBody
-    public String rForGame(@RequestParam String idp){
-        System.out.println(idp);
-        if(pgmap.containsKey(idp)) return pgmap.get(idp);
-        else{
-            listaplayer.add(new Giocatori((idp)));
-            if(listaplayer.size()%2 == 0) readyForGame();
-            return "new";
-        }
-
+    public String ready(@RequestParam String idp) {
+        return gameService.rForGame(idp);
     }
 
 
@@ -43,8 +39,7 @@ public class ApiControllers {
     @GetMapping(value = "/start")
     @ResponseBody
     public String startGame(@RequestParam String idp){
-        if(!pgmap.containsKey(idp)) return "wait";
-        else return pgmap.get(idp);
+        return gameService.startGame(idp);
 
     }
 
@@ -120,33 +115,7 @@ public class ApiControllers {
 
 
 
-    private void readyForGame(){
-        player1 = listaplayer.get(listaplayer.size()-2);
-        player2 = listaplayer.getLast();
-        player1.setReadyForGame(true);
-        player2.setReadyForGame(true);
-        turn = player1.getId();
 
-        List<Integer> l = carte();
-        Partita p = new Partita(player1.getId(),player2.getId(),player1.getId()+player2.getId(),turn,l);
-        p.setPartitaFinita(false);
-        p.setCartaP1(-1);
-        p.setCartaP2(-1);
-        System.out.println(p.getIdPartita());
-        pgmap.put(player1.getId(),p.getIdPartita());
-        pgmap.put(player2.getId(),p.getIdPartita());
-        listaPartite.add(p);
-    }
-
-    private List carte(){
-        List<Integer> carte = new ArrayList<>();
-        for (int i = 0; i < 40; i++) {
-            carte.add(i);
-        }
-        // Mescola la lista in ordine casuale
-        Collections.shuffle(carte);
-        return  carte;
-    }
 
 
 }
