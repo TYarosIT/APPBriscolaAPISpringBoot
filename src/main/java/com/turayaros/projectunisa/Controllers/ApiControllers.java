@@ -58,8 +58,8 @@ public class ApiControllers {
 
     @GetMapping(value = "/setCarta")
     @ResponseBody
-    public String sendCarte(@RequestParam String idp,int carta,String player){
-       return gameService.sendCarte(idp,carta,player);
+    public String sendCarta(@RequestParam String idp, int carta, String player){
+       return gameService.sendCarta(idp,carta,player);
     }
 
     @GetMapping(value = "/getCarta")
