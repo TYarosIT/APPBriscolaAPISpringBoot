@@ -20,7 +20,7 @@ public class GameService {
 
 
     public String rForGame(String idp) {
-        logger.info(idp);
+        logger.info(String.valueOf(idp));
         if (idp == null) return "wait";
         // Already matched -> return partita id (also covers both polling callers).
         if (pgmap.containsKey(idp)) return pgmap.get(idp);
@@ -41,7 +41,7 @@ public class GameService {
     }
 
     public String startGame(String idp) {
-        if (idp == null || !pgmap.containsKey(idp)) return "wait";
+        if (idp == null || idp.isBlank() || !pgmap.containsKey(idp)) return "wait";
         return pgmap.get(idp);
     }
 
